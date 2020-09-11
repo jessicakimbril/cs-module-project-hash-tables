@@ -1,3 +1,6 @@
+# Imports
+from hash_linked_list import HashLinkedList
+
 class HashTableEntry:
     """
     Linked List hash table key/value pair
@@ -21,10 +24,11 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        if capacity < MIN_CAPACITY:
-            capacity = MIN_CAPACITY
-        self.capacity = capacity
-        self.storage = [None] * capacity
+        if capacity < MIN_CAPACITY: #* if capacity is less than min capacity
+            capacity = MIN_CAPACITY #* make capicity equal to min capacity
+        self.capacity = capacity #* set self.capacity equal to capacity
+        self.storage = [HashLinkedList()] * capacity #* self.storage is our linkedlist times capacity
+        self.count = 0 #* self.count is equal to zero
 
 
     def get_num_slots(self):
@@ -33,7 +37,7 @@ class HashTable:
         table data. (Not the number of items stored in the hash table,
         but the number of slots in the main list.)
         """
-        return self.capacity
+        return len(self.storage) #* return the len of self.storage
 
 
 
@@ -43,7 +47,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.count/self.capacity #* return self.count divided by self.capacity
 
 
     def fnv1(self, key):
@@ -61,7 +65,7 @@ class HashTable:
         DJB2 hash, 32-bit
         Implement this, and/or FNV-1.
         """
-        hash = 5381
+        hash = 5381 #* hashing with this number as it's prime and sources seem to agree it's the best
         for x in key:
             hash = ((hash << 5) + hash) + ord(x)
         return hash & 0xFFFFFFFF
@@ -72,7 +76,7 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        return self.djb2(key) % self.capacity
+        return self.djb2(key) % self.capacity #* self.djb2(key) modulas self.capacity so getting the remainder
 
     def put(self, key, value):
         """
@@ -80,8 +84,16 @@ class HashTable:
         Hash collisions should be handled with Linked List Chaining.
         Implement this.
         """
-        my_index = self.hash_index(key)
-        self.storage[my_index] = HashTableEntry(key, value)
+        my_hash_index = self.hash_index(key)
+        curr = self.storage[my_hash_index].head
+
+        while curr:
+            if curr.key == key:
+                curr.value == value
+            curr = curr.next
+        new_entry = HashTableEntry(key, value)
+        self.storage[my_hash_index].insert_at_head(new_entry)
+        self.count += 1
 
 
     def delete(self, key):
@@ -90,8 +102,8 @@ class HashTable:
         Print a warning if the key is not found.
         Implement this.
         """
-        my_index = self.hash_index(key)
-        self.storage[my_index] = None
+        self.put(key, None)
+        self.count -= 1
 
 
     def get(self, key):
@@ -100,10 +112,13 @@ class HashTable:
         Returns None if the key is not found.
         Implement this.
         """
-        my_index = self.hash_index(key)
-        entry = self.storage[my_index]
-        if entry:
-            return entry.value
+        my_hash_index = self.hash_index(key)
+        curr = self.storage[my_hash_index].head
+        while curr:
+            if curr.key == key:
+                return curr.value
+            curr = curr.next
+        return None
 
 
     def resize(self, new_capacity):
@@ -113,8 +128,15 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        if self.get_load_factor() > 0.7:
+            old_storage = self.storage
+            self.storage = [HashLinkedList()] * new_capacity
+            for i in old_storage:
+                curr = i.head
+                while curr:
+                    self.put(curr.key, curr.value)
+                    curr = curr.next
+            self.capacity = new_capacity
 
 
 if __name__ == "__main__":

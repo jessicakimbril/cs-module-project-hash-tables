@@ -1,7 +1,15 @@
+# Imports
+import re #* import regex
+
 def word_count(s):
-    # Your code here
+    name = s.replace('"', '').replace(':', '').replace(';','').replace(',','').replace('.','').replace('-','').replace('+','').replace('=','').replace('/','').replace('|','').replace('[', '').replace(']','').replace('{','').replace('}','').replace('(','').replace(')','').replace('*','').replace('^','').replace('&','').replace('\\','')
+    if name == '':
+        return {}
+    split = name.lower().split()
+    words = {i:split.count(i) for i in split}
+    return words
 
-
+#* ALL TESTS PASSED
 
 if __name__ == "__main__":
     print(word_count(""))
